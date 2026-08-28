@@ -44,8 +44,17 @@
 		<Compiler>
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
+			<Add directory="include" />
 		</Compiler>
+		<Unit filename="include/Color.h" />
+		<Unit filename="include/Context.h" />
+		<Unit filename="include/Line.h" />
+		<Unit filename="include/Point.h" />
 		<Unit filename="main.cpp" />
+		<Unit filename="src/Color.cpp" />
+		<Unit filename="src/Context.cpp" />
+		<Unit filename="src/Line.cpp" />
+		<Unit filename="src/Point.cpp" />
 		<Extensions>
 			<lib_finder disable_auto="1" />
 		</Extensions>
