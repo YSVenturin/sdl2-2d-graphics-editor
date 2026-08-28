@@ -27,3 +27,6 @@ Thumbs.db
 Desktop.ini
 
 *.cache
+
+!third_party/SDL2/bin/
+!third_party/SDL2/bin/SDL2.dll
