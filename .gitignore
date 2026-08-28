@@ -28,5 +28,5 @@ Desktop.ini
 
 *.cache
 
-!third_party/SDL2/bin/
-!third_party/SDL2/bin/SDL2.dll
+!graphics-editor/third_party/SDL2/bin/
+!graphics-editor/third_party/SDL2/bin/SDL2.dll
