@@ -16,8 +16,8 @@ Simple Graphics Editor project developed in C++ using SDL2.
 
 ## SDL2
 
-The SDL2 files required by the project are already included in the repository.
+The SDL2 files included in this repository are configured for Windows 64-bit using CodeBlocks and MinGW.
 
-There is no need to install or configure SDL2 manually.
+If you are using Windows 64-bit with CodeBlocks and MinGW, no additional SDL2 installation should be required.
 
-After cloning the repository, just open the project in CodeBlocks, build it, and run it.
+If you are using Linux, you will need to install SDL2 separately and adjust the project configuration.
