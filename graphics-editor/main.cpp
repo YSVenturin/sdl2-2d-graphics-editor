@@ -11,6 +11,7 @@
 #include <Color.h>
 #include <Point.h>
 #include <Line.h>
+#include <Bezier.h>
 
 using namespace std;
 
@@ -29,6 +30,13 @@ void display() {
 
     Line line(start, end, red);
     line.draw();
+
+    Point p0(100, 400);
+    Point p1(150, 50);
+    Point p2(490, 50);
+    Point p3(540, 400);
+    Bezier bezier(p0, p1, p2, p3, red);
+    bezier.draw();
 }
 
 int main() {
@@ -62,7 +70,5 @@ int main() {
         display();
 
         SDL_UpdateWindowSurface(window);
-
-        SDL_Delay(16);
     }
 }
