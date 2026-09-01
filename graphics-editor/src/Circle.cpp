@@ -1,9 +1,9 @@
 #include "Circle.h"
 
-Circle::Circle() {
+Circle::Circle() : Shape() {
 }
 
-Circle::Circle(Point center, int radius, Color color) {
+Circle::Circle(Point center, int radius, Color color) : Shape(){
     this->center = center;
     this->radius = radius;
     this->color = color;

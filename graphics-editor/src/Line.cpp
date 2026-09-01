@@ -3,7 +3,7 @@
 
 #include <math.h>
 
-Line::Line()
+Line::Line() : Shape()
 {
     //ctor
 }
@@ -13,14 +13,14 @@ Line::~Line()
     //dtor
 }
 
-Line::Line(Point start, Point end, Color color) {
+Line::Line(Point start, Point end, Color color) : Shape() {
     this->start = start;
     this->end = end;
     this->color = color;
     this->antialias = 0;
 }
 
-Line::Line(Point start, Point end, Color color, int antialias) {
+Line::Line(Point start, Point end, Color color, int antialias) : Shape() {
     this->start = start;
     this->end = end;
     this->color = color;

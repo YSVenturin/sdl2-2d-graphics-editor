@@ -6,6 +6,8 @@
 #include <stack>
 #include <sstream>
 #include <unistd.h>
+#include <list>
+#include <memory>
 
 #include <Context.h>
 #include <Color.h>
@@ -13,6 +15,7 @@
 #include <Line.h>
 #include <Bezier.h>
 #include <Circle.h>
+#include <Shape.h>
 
 using namespace std;
 
@@ -25,23 +28,27 @@ SDL_Renderer * renderer;
 std::string title = "Graphics Editor";
 
 void display() {
-    Point start(100, 100);
-    Point end(500, 300);
     Color red(255, 0, 0);
-
-    Line line(start, end, red);
-    line.draw();
 
     Point p0(100, 400);
     Point p1(150, 50);
     Point p2(490, 50);
     Point p3(540, 400);
-    Bezier bezier(p0, p1, p2, p3, red);
-    bezier.draw();
-
     Point p4(width/2, height/2);
-    Circle c(p4, 100, red);
-    c.draw();
+
+    std::list<std::unique_ptr<Shape>> shapes;
+
+    auto c = std::make_unique<Circle>(p4, 100, red);
+    auto b = std::make_unique<Bezier>(p0, p1, p2, p3, red);
+    auto l = std::make_unique<Line>(p0, p3, red);
+    shapes.push_back(std::move(c));
+    shapes.push_back(std::move(b));
+    shapes.push_back(std::move(l));
+
+
+    for (const auto& s : shapes) {
+        s->draw();
+    }
 }
 
 int main() {

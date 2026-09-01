@@ -3,8 +3,9 @@
 #include <Point.h>
 #include <Color.h>
 #include <Context.h>
+#include <Shape.h>
 
-class Bezier
+class Bezier : public Shape
 {
     public:
         Bezier();

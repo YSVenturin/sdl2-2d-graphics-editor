@@ -3,12 +3,12 @@
 #include <math.h>
 
 
-Bezier::Bezier()
+Bezier::Bezier() : Shape()
 {
     //ctor
 }
 
-Bezier::Bezier(Point p0, Point p1, Point p2, Point p3, Color color) {
+Bezier::Bezier(Point p0, Point p1, Point p2, Point p3, Color color) : Shape() {
     this->p0 = p0;
     this->p1 = p1;
     this->p2 = p2;

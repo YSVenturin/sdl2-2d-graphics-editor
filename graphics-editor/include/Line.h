@@ -2,9 +2,9 @@
 #define LINE_H
 #include <Point.h>
 #include <Color.h>
-#include<SDL2/SDL.h>
+#include <Shape.h>
 
-class Line
+class Line : public Shape
 {
     public:
         Line();

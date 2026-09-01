@@ -3,8 +3,9 @@
 #include <Point.h>
 #include <Color.h>
 #include <Context.h>
+#include <Shape.h>
 
-class Circle
+class Circle : public Shape
 {
     public:
         Circle();
