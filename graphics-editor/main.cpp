@@ -12,6 +12,7 @@
 #include <Point.h>
 #include <Line.h>
 #include <Bezier.h>
+#include <Circle.h>
 
 using namespace std;
 
@@ -37,6 +38,10 @@ void display() {
     Point p3(540, 400);
     Bezier bezier(p0, p1, p2, p3, red);
     bezier.draw();
+
+    Point p4(width/2, height/2);
+    Circle c(p4, 100, red);
+    c.draw();
 }
 
 int main() {
