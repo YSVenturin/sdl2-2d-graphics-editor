@@ -40,8 +40,8 @@ int main() {
 
     SDL_Window * window = SDL_CreateWindow(title.c_str(),
                                            SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                                           640, 480,
-                                           SDL_WINDOW_RESIZABLE);
+                                           1024, 768,
+                                           0);
 
     window_surface = SDL_GetWindowSurface(window);
 
