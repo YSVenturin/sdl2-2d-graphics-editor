@@ -15,6 +15,7 @@
 #include <Line.h>
 #include <Bezier.h>
 #include <Circle.h>
+#include <Rectangle.h>
 #include <Shape.h>
 #include <ShapeList.h>
 
@@ -52,15 +53,23 @@ int main() {
     height = window_surface->h;
 
     ShapeList shapeList = ShapeList();
+
     Color red(255, 0, 0);
+    Color blue(0, 0, 255);
+
     Point p0(100, 400);
     Point p1(150, 50);
     Point p2(490, 50);
     Point p3(540, 400);
     Point p4(width/2, height/2);
+
+    Point p5(width/2-20, height/2-20);
+    Point p6(width/2+20, height/2+20);
+
     shapeList.add(std::make_unique<Circle>(p4, 100, red));
     shapeList.add(std::make_unique<Bezier>(p0, p1, p2, p3, red));
     shapeList.add(std::make_unique<Line>(p0, p3, red));
+    shapeList.add(std::make_unique<Rectangle>(p5, p6, blue));
 
     while (1) {
         SDL_Event event;
