@@ -10,7 +10,6 @@ class Circle : public Shape
     public:
         Circle();
         Circle(Point center, int radius, Color color);
-        void setPixel(int x, int y, int r, int g, int b);
         virtual ~Circle();
         void draw();
 
@@ -20,9 +19,6 @@ class Circle : public Shape
         Point center;
         int radius;
         Color color;
-        void setPixel(int x, int y, int r, int g, int b, int a);
-        void setPixel(int x, int y, Color color);
-        void setPixel(int x, int y, Uint32 cor);
         void displayBresenhamCircle(int xc, int yc, int x, int y);
 };
 

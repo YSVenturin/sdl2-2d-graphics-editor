@@ -27,38 +27,6 @@ Line::Line(Point start, Point end, Color color, int antialias) : Shape() {
     this->antialias = antialias;
 }
 
-void Line::setPixel(int x, int y, Uint32 cor) {
-
-    Color c = Color();
-    Uint8 r = c.getColorComponent(cor, 'r');
-    Uint8 g = c.getColorComponent(cor, 'g');
-    Uint8 b = c.getColorComponent(cor, 'b');
-    this->setPixel(x, y, r, g, b);
-}
-
-void Line::setPixel(int x, int y, Color color) {
-	this->setPixel(x, y, color.getR(),color.getG(),color.getB());
-}
-
-/*
-void Line::setPixel(int x, int y, int r, int g, int b) {
-    SDL_Renderer * pRenderer = Context::getInstance()->getRenderer();
-	SDL_SetRenderDrawColor(pRenderer, r, g, b, 255);
-	SDL_RenderDrawPoint(pRenderer, x, y);
-}
-*/
-
-void Line::setPixel(int x, int y, int r, int g, int b) {
-    setPixel(x, y, r, g, b, 255);
-}
-
-void Line::setPixel(int x, int y, int r, int g, int b, int a) {
-    unsigned int * pixels;
-    SDL_Surface * window_surface = Context::getInstance()->getWindowSurface();
-    pixels = (unsigned int *) window_surface->pixels;
-    pixels[x + y * window_surface->w] = SDL_MapRGBA(window_surface->format, r, g, b, a);
-}
-
 void Line::draw() {
     if(this->antialias) {
         this->drawWuLine(
@@ -80,40 +48,6 @@ void Line::draw() {
     }
 }
 
-Uint32 Line::getPixel(int x, int y)
-{
-    SDL_Surface * window_surface = Context::getInstance()->getWindowSurface();
-
-    int bpp = window_surface->format->BytesPerPixel;
-    /* Here p is the address to the pixel we want to retrieve */
-    Uint8 *p = (Uint8 *) window_surface->pixels + y * window_surface->pitch + x * bpp;
-
-    switch (bpp)
-    {
-        case 1:
-            return *p;
-            break;
-
-        case 2:
-            return *(Uint16 *)p;
-            break;
-
-        case 3:
-            if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
-                return p[0] << 16 | p[1] << 8 | p[2];
-            else
-                return p[0] | p[1] << 8 | p[2] << 16;
-            break;
-
-            case 4:
-                return *(Uint32 *)p;
-                break;
-
-            default:
-                return 0;       /* shouldn't happen, but avoids warnings */
-      }
-}
-
 void Line::drawWuLine(int x0, int y0, int x1, int y1, Color color )
 {
 
@@ -126,7 +60,7 @@ void Line::drawWuLine(int x0, int y0, int x1, int y1, Color color )
 
     /* Draw the initial pixel, which is always exactly intersected by
     the line and so needs no weighting */
-    setPixel( x0, y0, color );
+    Shape::setPixel( x0, y0, color );
 
     int xDir, deltaX = x1 - x0;
     if( deltaX >= 0 )
@@ -149,7 +83,7 @@ void Line::drawWuLine(int x0, int y0, int x1, int y1, Color color )
         while (deltaX-- != 0)
         {
             x0 += xDir;
-            setPixel( x0, y0, color );
+            Shape::setPixel( x0, y0, color );
         }
         return;
     }
@@ -159,7 +93,7 @@ void Line::drawWuLine(int x0, int y0, int x1, int y1, Color color )
         do
         {
             y0++;
-            setPixel( x0, y0, color );
+            Shape::setPixel( x0, y0, color );
         } while (--deltaY != 0);
         return;
     }
@@ -171,7 +105,7 @@ void Line::drawWuLine(int x0, int y0, int x1, int y1, Color color )
         {
             x0 += xDir;
             y0++;
-            setPixel( x0, y0, color );
+            Shape::setPixel( x0, y0, color );
         } while (--deltaY != 0);
         return;
     }
@@ -213,7 +147,7 @@ void Line::drawWuLine(int x0, int y0, int x1, int y1, Color color )
             ASSERT( weighting < 256 );
             ASSERT( ( weighting ^ 255 ) < 256 );
             */
-            Uint32 clrBackGround = getPixel(x0, y0 );
+            Uint32 clrBackGround = Shape::getPixel(x0, y0 );
             //clrBackGround = RGB(255, 255, 255);
             Uint8 rb = color.getColorComponent(clrBackGround,'r');
             Uint8 gb = color.getColorComponent(clrBackGround,'g');
@@ -223,9 +157,9 @@ void Line::drawWuLine(int x0, int y0, int x1, int y1, Color color )
             Uint8 rr = ( rb > rl ? ( ( Uint8 )( ( ( double )( grayl<grayb?weighting:(weighting ^ 255)) ) / 255.0 * ( rb - rl ) + rl ) ) : ( ( Uint8 )( ( ( double )( grayl<grayb?weighting:(weighting ^ 255)) ) / 255.0 * ( rl - rb ) + rb ) ) );
             Uint8 gr = ( gb > gl ? ( ( Uint8 )( ( ( double )( grayl<grayb?weighting:(weighting ^ 255)) ) / 255.0 * ( gb - gl ) + gl ) ) : ( ( Uint8 )( ( ( double )( grayl<grayb?weighting:(weighting ^ 255)) ) / 255.0 * ( gl - gb ) + gb ) ) );
             Uint8 br = ( bb > bl ? ( ( Uint8 )( ( ( double )( grayl<grayb?weighting:(weighting ^ 255)) ) / 255.0 * ( bb - bl ) + bl ) ) : ( ( Uint8 )( ( ( double )( grayl<grayb?weighting:(weighting ^ 255)) ) / 255.0 * ( bl - bb ) + bb ) ) );
-            setPixel( x0, y0, color.getColor( rr, gr, br ) );
+            Shape::setPixel( x0, y0, color.getColor( rr, gr, br ) );
 
-            clrBackGround = getPixel(x0 + xDir, y0 );
+            clrBackGround = Shape::getPixel(x0 + xDir, y0 );
             //clrBackGround = RGB(255, 255, 255);
             rb = color.getColorComponent( clrBackGround, 'r' );
             gb = color.getColorComponent( clrBackGround, 'g' );
@@ -235,11 +169,11 @@ void Line::drawWuLine(int x0, int y0, int x1, int y1, Color color )
             rr = ( rb > rl ? ( ( Uint8 )( ( ( double )( grayl<grayb?(weighting ^ 255):weighting) ) / 255.0 * ( rb - rl ) + rl ) ) : ( ( Uint8 )( ( ( double )( grayl<grayb?(weighting ^ 255):weighting) ) / 255.0 * ( rl - rb ) + rb ) ) );
             gr = ( gb > gl ? ( ( Uint8 )( ( ( double )( grayl<grayb?(weighting ^ 255):weighting) ) / 255.0 * ( gb - gl ) + gl ) ) : ( ( Uint8 )( ( ( double )( grayl<grayb?(weighting ^ 255):weighting) ) / 255.0 * ( gl - gb ) + gb ) ) );
             br = ( bb > bl ? ( ( Uint8 )( ( ( double )( grayl<grayb?(weighting ^ 255):weighting) ) / 255.0 * ( bb - bl ) + bl ) ) : ( ( Uint8 )( ( ( double )( grayl<grayb?(weighting ^ 255):weighting) ) / 255.0 * ( bl - bb ) + bb ) ) );
-            setPixel( x0 + xDir, y0, color.RGB( rr, gr, br ) );
+            Shape::setPixel( x0 + xDir, y0, color.RGB( rr, gr, br ) );
         }
         /* Draw the final pixel, which is always exactly intersected by the line
         and so needs no weighting */
-        setPixel( x1, y1, color );
+        Shape::setPixel( x1, y1, color );
         return;
     }
     /* It's an X-major line; calculate 16-bit fixed-point fractional part of a
@@ -263,7 +197,7 @@ void Line::drawWuLine(int x0, int y0, int x1, int y1, Color color )
         ASSERT( weighting < 256 );
         ASSERT( ( weighting ^ 255 ) < 256 );
         */
-        Uint32 clrBackGround = getPixel(x0, y0 );
+        Uint32 clrBackGround = Shape::getPixel(x0, y0 );
         //clrBackGround = RGB(255, 255, 255);
         Uint8 rb = color.getColorComponent( clrBackGround, 'r' );
         Uint8 gb = color.getColorComponent( clrBackGround, 'g' );
@@ -274,9 +208,9 @@ void Line::drawWuLine(int x0, int y0, int x1, int y1, Color color )
         Uint8 gr = ( gb > gl ? ( ( Uint8 )( ( ( double )( grayl<grayb?weighting:(weighting ^ 255)) ) / 255.0 * ( gb - gl ) + gl ) ) : ( ( Uint8 )( ( ( double )( grayl<grayb?weighting:(weighting ^ 255)) ) / 255.0 * ( gl - gb ) + gb ) ) );
         Uint8 br = ( bb > bl ? ( ( Uint8 )( ( ( double )( grayl<grayb?weighting:(weighting ^ 255)) ) / 255.0 * ( bb - bl ) + bl ) ) : ( ( Uint8 )( ( ( double )( grayl<grayb?weighting:(weighting ^ 255)) ) / 255.0 * ( bl - bb ) + bb ) ) );
 
-        setPixel( x0, y0, color.RGB( rr, gr, br ) );
+        Shape::setPixel( x0, y0, color.RGB( rr, gr, br ) );
 
-        clrBackGround = getPixel(x0, y0 + 1 );
+        clrBackGround = Shape::getPixel(x0, y0 + 1 );
         //clrBackGround = RGB(255, 255, 255);
         rb = color.getColorComponent( clrBackGround, 'r' );
         gb = color.getColorComponent( clrBackGround, 'g' );
@@ -287,12 +221,12 @@ void Line::drawWuLine(int x0, int y0, int x1, int y1, Color color )
         gr = ( gb > gl ? ( ( Uint8 )( ( ( double )( grayl<grayb?(weighting ^ 255):weighting) ) / 255.0 * ( gb - gl ) + gl ) ) : ( ( Uint8 )( ( ( double )( grayl<grayb?(weighting ^ 255):weighting) ) / 255.0 * ( gl - gb ) + gb ) ) );
         br = ( bb > bl ? ( ( Uint8 )( ( ( double )( grayl<grayb?(weighting ^ 255):weighting) ) / 255.0 * ( bb - bl ) + bl ) ) : ( ( Uint8 )( ( ( double )( grayl<grayb?(weighting ^ 255):weighting) ) / 255.0 * ( bl - bb ) + bb ) ) );
 
-        setPixel( x0, y0 + 1, color.RGB( rr, gr, br ) );
+        Shape::setPixel( x0, y0 + 1, color.RGB( rr, gr, br ) );
     }
 
     /* Draw the final pixel, which is always exactly intersected by the line
     and so needs no weighting */
-    setPixel( x1, y1, color );
+    Shape::setPixel( x1, y1, color );
 }
 
 void Line::bresenham(int x1, int y1, int x2, int y2, int r, int g, int b)
@@ -322,7 +256,7 @@ void Line::bresenham(int x1, int y1, int x2, int y2, int r, int g, int b)
             y=y2;
             xe=x1;
         }
-        setPixel(x,y,r,g,b);
+        Shape::setPixel(x,y,r,g,b);
         for(i=0;x<xe;i++)
         {
             x=x+1;
@@ -342,7 +276,7 @@ void Line::bresenham(int x1, int y1, int x2, int y2, int r, int g, int b)
                 }
                 px=px+2*(dy1-dx1);
             }
-            setPixel(x,y,r,g,b);
+            Shape::setPixel(x,y,r,g,b);
         }
     }
     else
@@ -359,7 +293,7 @@ void Line::bresenham(int x1, int y1, int x2, int y2, int r, int g, int b)
             y=y2;
             ye=y1;
         }
-        setPixel(x,y,r,g,b);
+        Shape::setPixel(x,y,r,g,b);
         for(i=0;y<ye;i++)
         {
             y=y+1;
@@ -379,7 +313,7 @@ void Line::bresenham(int x1, int y1, int x2, int y2, int r, int g, int b)
                 }
                 py=py+2*(dx1-dy1);
             }
-            setPixel(x,y,r,g,b);
+            Shape::setPixel(x,y,r,g,b);
         }
     }
 }
