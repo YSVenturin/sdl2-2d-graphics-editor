@@ -16,6 +16,7 @@
 #include <Bezier.h>
 #include <Circle.h>
 #include <Shape.h>
+#include <ShapeList.h>
 
 using namespace std;
 
@@ -27,28 +28,8 @@ SDL_Renderer * renderer;
 
 std::string title = "Graphics Editor";
 
-void display() {
-    Color red(255, 0, 0);
-
-    Point p0(100, 400);
-    Point p1(150, 50);
-    Point p2(490, 50);
-    Point p3(540, 400);
-    Point p4(width/2, height/2);
-
-    std::list<std::unique_ptr<Shape>> shapes;
-
-    auto c = std::make_unique<Circle>(p4, 100, red);
-    auto b = std::make_unique<Bezier>(p0, p1, p2, p3, red);
-    auto l = std::make_unique<Line>(p0, p3, red);
-    shapes.push_back(std::move(c));
-    shapes.push_back(std::move(b));
-    shapes.push_back(std::move(l));
-
-
-    for (const auto& s : shapes) {
-        s->draw();
-    }
+void display(ShapeList &shapeList) {
+    shapeList.drawAll();
 }
 
 int main() {
@@ -70,6 +51,17 @@ int main() {
     width = window_surface->w;
     height = window_surface->h;
 
+    ShapeList shapeList = ShapeList();
+    Color red(255, 0, 0);
+    Point p0(100, 400);
+    Point p1(150, 50);
+    Point p2(490, 50);
+    Point p3(540, 400);
+    Point p4(width/2, height/2);
+    shapeList.add(std::make_unique<Circle>(p4, 100, red));
+    shapeList.add(std::make_unique<Bezier>(p0, p1, p2, p3, red));
+    shapeList.add(std::make_unique<Line>(p0, p3, red));
+
     while (1) {
         SDL_Event event;
 
@@ -79,7 +71,7 @@ int main() {
             }
         }
 
-        display();
+        display(shapeList);
 
         SDL_UpdateWindowSurface(window);
     }
