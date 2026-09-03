@@ -16,6 +16,7 @@
 #include <Bezier.h>
 #include <Circle.h>
 #include <Rectangle.h>
+#include <Polygon.h>
 #include <Shape.h>
 #include <ShapeList.h>
 
@@ -56,6 +57,7 @@ int main() {
 
     Color red(255, 0, 0);
     Color blue(0, 0, 255);
+    Color green(0, 255, 0);
 
     Point p0(100, 400);
     Point p1(150, 50);
@@ -66,10 +68,18 @@ int main() {
     Point p5(width/2-20, height/2-20);
     Point p6(width/2+20, height/2+20);
 
+    std::list<Point> poly;
+    poly.push_back(p0);
+    poly.push_back(p1);
+    poly.push_back(p2);
+    poly.push_back(p3);
+    poly.push_back(p5);
+
     shapeList.add(std::make_unique<Circle>(p4, 100, red));
     shapeList.add(std::make_unique<Bezier>(p0, p1, p2, p3, red));
     shapeList.add(std::make_unique<Line>(p0, p3, red));
     shapeList.add(std::make_unique<Rectangle>(p5, p6, blue));
+    shapeList.add(std::make_unique<Polygon>(poly, green));
 
     while (1) {
         SDL_Event event;
