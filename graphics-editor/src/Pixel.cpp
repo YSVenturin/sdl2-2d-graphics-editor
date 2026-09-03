@@ -9,11 +9,9 @@ Pixel::~Pixel() {
 }
 
 void Pixel::setPixel(int x, int y, Uint32 color) {
-    Color c = Color();
-    Uint8 r = c.getColorComponent(color, 'r');
-    Uint8 g = c.getColorComponent(color, 'g');
-    Uint8 b = c.getColorComponent(color, 'b');
-    Pixel::setPixel(x, y, r, g, b);
+    SDL_Surface *window_surface = Context::getInstance()->getWindowSurface();
+    unsigned int *pixels = (unsigned int *)window_surface->pixels;
+    pixels[x + y * window_surface->w] = color;
 }
 
 void Pixel::setPixel(int x, int y, Color color) {
@@ -31,36 +29,13 @@ void Pixel::setPixel(int x, int y, int r, int g, int b, int a) {
     pixels[x + y * window_surface->w] = SDL_MapRGBA(window_surface->format, r, g, b, a);
 }
 
-Uint32 Pixel::getPixel(int x, int y)
-{
+Uint32 Pixel::getPixel(int x, int y){
+    unsigned int * pixels;
     SDL_Surface * window_surface = Context::getInstance()->getWindowSurface();
+    pixels = (unsigned int *) window_surface->pixels;
 
-    int bpp = window_surface->format->BytesPerPixel;
-    /* Here p is the address to the pixel we want to retrieve */
-    Uint8 *p = (Uint8 *) window_surface->pixels + y * window_surface->pitch + x * bpp;
-
-    switch (bpp)
-    {
-        case 1:
-            return *p;
-            break;
-
-        case 2:
-            return *(Uint16 *)p;
-            break;
-
-        case 3:
-            if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
-                return p[0] << 16 | p[1] << 8 | p[2];
-            else
-                return p[0] | p[1] << 8 | p[2] << 16;
-            break;
-
-            case 4:
-                return *(Uint32 *)p;
-                break;
-
-            default:
-                return 0;       /* shouldn't happen, but avoids warnings */
-      }
+    if((x >= 0 && x < window_surface->w) && (y >= 0 && y < window_surface->h))
+        return pixels[x + window_surface->w * y];
+    else
+        return -1;
 }

@@ -19,6 +19,7 @@
 #include <Polygon.h>
 #include <Shape.h>
 #include <ShapeList.h>
+#include <FloodFill.h>
 
 using namespace std;
 
@@ -32,6 +33,8 @@ std::string title = "Graphics Editor";
 
 void display(ShapeList &shapeList) {
     shapeList.drawAll();
+    Color green(0, 255, 0);
+    FloodFill::floodFill(width/2, height/2, green);
 }
 
 int main() {
