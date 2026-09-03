@@ -46,17 +46,15 @@
 			<Add option="-fexceptions" />
 			<Add directory="include" />
 		</Compiler>
-		<Unit filename="include/Color.h" />
-		<Unit filename="include/Context.h" />
-		<Unit filename="include/Line.h" />
-		<Unit filename="include/Point.h" />
-		<Unit filename="include/Shape.h" />
+		<UnitsGlob directory="include" wildcard="*.h" recursive="1" id="316380917" addToProject="1">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</UnitsGlob>
+		<UnitsGlob directory="src" wildcard="*.cpp" recursive="1" id="2178398971" addToProject="1">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</UnitsGlob>
 		<Unit filename="main.cpp" />
-		<Unit filename="src/Color.cpp" />
-		<Unit filename="src/Context.cpp" />
-		<Unit filename="src/Line.cpp" />
-		<Unit filename="src/Point.cpp" />
-		<Unit filename="src/Shape.cpp" />
 		<Extensions>
 			<lib_finder disable_auto="1" />
 		</Extensions>
