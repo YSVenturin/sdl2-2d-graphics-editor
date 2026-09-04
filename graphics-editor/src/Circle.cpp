@@ -47,3 +47,7 @@ void Circle::displayBresenhamCircle(int xc, int yc, int x, int y) {
     Shape::setPixel(xc+y, yc-x, this->color);
     Shape::setPixel(xc-y, yc-x, this->color);
 }
+
+void Circle::translate(double tx, double ty) {
+    this->center.translate(tx, ty);
+}

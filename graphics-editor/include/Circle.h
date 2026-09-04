@@ -12,6 +12,7 @@ class Circle : public Shape
         Circle(Point center, int radius, Color color);
         virtual ~Circle();
         void draw();
+        void translate(double tx, double ty);
 
     protected:
 

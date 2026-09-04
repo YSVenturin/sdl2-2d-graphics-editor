@@ -14,6 +14,7 @@ class Rectangle : public Shape
         Rectangle(Point topLeft, Point bottomRight, Color color);
         virtual ~Rectangle();
         void draw();
+        void translate(double tx, double ty);
 
     protected:
 

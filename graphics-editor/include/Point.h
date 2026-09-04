@@ -6,17 +6,18 @@ class Point
 {
     public:
         Point();
-        Point(int x, int y);
-        int getX();
-        int getY();
-        void setX(int x);
-        void setY(int y);
+        Point(double x, double y);
+        double getX();
+        double getY();
+        void setX(double x);
+        void setY(double y);
         virtual ~Point();
+        void translate(double tx, double ty);
 
     protected:
 
     private:
-        int x, y;
+        double x, y;
 };
 
 #endif // POINT_H

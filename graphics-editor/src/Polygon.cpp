@@ -27,3 +27,9 @@ void Polygon::draw() {
     Point p2 = (this->points).front();
     Line(p1, p2, this->color).draw();
 }
+
+void Polygon::translate(double tx, double ty) {
+    for (auto& p : this->points) {
+        p.translate(tx, ty);
+    }
+}

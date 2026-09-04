@@ -22,3 +22,10 @@ void Rectangle::draw() {
     Line(bottomRight, bottomLeft, color).draw();
     Line(bottomLeft, topLeft, color).draw();
 }
+
+void Rectangle::translate(double tx, double ty) {
+    this->topLeft.translate(tx, ty);
+    this->topRight.translate(tx, ty);
+    this->bottomLeft.translate(tx, ty);
+    this->bottomRight.translate(tx, ty);
+}

@@ -16,6 +16,7 @@ class Polygon : public Shape
         virtual ~Polygon();
         void draw();
         void addPoint(Point p);
+        void translate(double tx, double ty);
 
     protected:
 

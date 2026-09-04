@@ -48,6 +48,11 @@ void Line::draw() {
     }
 }
 
+void Line::translate(double tx, double ty) {
+    this->start.translate(tx, ty);
+    this->end.translate(tx, ty);
+}
+
 void Line::drawWuLine(int x0, int y0, int x1, int y1, Color color )
 {
 

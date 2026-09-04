@@ -10,6 +10,7 @@ class Shape : protected Pixel {
         virtual void draw() = 0;
 
     protected:
+        virtual void translate(double tx, double ty) = 0;
 
     private:
 };

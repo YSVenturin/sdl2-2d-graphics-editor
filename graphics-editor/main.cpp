@@ -34,7 +34,7 @@ std::string title = "Graphics Editor";
 void display(ShapeList &shapeList) {
     shapeList.drawAll();
     Color green(0, 255, 0);
-    FloodFill::floodFill(width/2, height/2, green);
+    //FloodFill::floodFill(width/2, height/2, green);
 }
 
 int main() {
@@ -61,6 +61,7 @@ int main() {
     Color red(255, 0, 0);
     Color blue(0, 0, 255);
     Color green(0, 255, 0);
+    Color white(255, 255, 255);
 
     Point p0(100, 400);
     Point p1(150, 50);
@@ -70,6 +71,7 @@ int main() {
 
     Point p5(width/2-20, height/2-20);
     Point p6(width/2+20, height/2+20);
+    Point p7(0, 0);
 
     std::list<Point> poly;
     poly.push_back(p0);
@@ -78,11 +80,40 @@ int main() {
     poly.push_back(p3);
     poly.push_back(p5);
 
-    shapeList.add(std::make_unique<Circle>(p4, 100, red));
-    shapeList.add(std::make_unique<Bezier>(p0, p1, p2, p3, red));
-    shapeList.add(std::make_unique<Line>(p0, p3, red));
-    shapeList.add(std::make_unique<Rectangle>(p5, p6, blue));
-    shapeList.add(std::make_unique<Polygon>(poly, green));
+    Bezier b = Bezier(p0, p1, p2, p3, red);
+    Bezier b2 = Bezier(p0, p1, p2, p3, white);
+    b.translate(100, 0);
+
+    Line l = Line(p5, p6, white);
+    Line l2 = Line(p5, p6, white);
+    l.translate(-50, -50);
+    l2.translate(0, 100);
+
+    Rectangle r1 = Rectangle(p5, p6, red);
+    Rectangle r2 = Rectangle(p5, p6, red);
+    r1.translate(-50, -50);
+    r2.translate(0, 100);
+
+    Circle c = Circle (p0, 50, green);
+    Circle c2 = Circle (p0, 50, white);
+    c2.translate(50, 50);
+
+    Polygon poly1 = Polygon(poly, blue);
+    Polygon poly2 = Polygon(poly, white);
+    poly2.translate(50, 50);
+
+    shapeList.add(std::make_unique<Line>(l));
+    shapeList.add(std::make_unique<Line>(l2));
+    shapeList.add(std::make_unique<Rectangle>(r1));
+    shapeList.add(std::make_unique<Rectangle>(r2));
+    shapeList.add(std::make_unique<Bezier>(b));
+    shapeList.add(std::make_unique<Bezier>(b2));
+    shapeList.add(std::make_unique<Circle>(c));
+    shapeList.add(std::make_unique<Circle>(c2));
+    //shapeList.add(std::make_unique<Line>(p0, p3, red));
+    //shapeList.add(std::make_unique<Rectangle>(p5, p6, blue));
+    shapeList.add(std::make_unique<Polygon>(poly1));
+    shapeList.add(std::make_unique<Polygon>(poly2));
 
     while (1) {
         SDL_Event event;

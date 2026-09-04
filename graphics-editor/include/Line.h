@@ -12,6 +12,7 @@ class Line : public Shape
         Line(Point start, Point end, Color color, int antialias);
         void draw();
         virtual ~Line();
+        void translate(double tx, double ty);
 
     protected:
 

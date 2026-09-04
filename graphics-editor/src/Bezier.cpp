@@ -41,3 +41,10 @@ void Bezier::draw() {
         Shape::setPixel(xu, yu, this->color);
     }
 }
+
+void Bezier::translate(double tx, double ty) {
+    this->p0.translate(tx, ty);
+    this->p1.translate(tx, ty);
+    this->p2.translate(tx, ty);
+    this->p3.translate(tx, ty);
+}
