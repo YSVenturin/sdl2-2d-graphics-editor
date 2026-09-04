@@ -48,3 +48,10 @@ void Bezier::translate(double tx, double ty) {
     this->p2.translate(tx, ty);
     this->p3.translate(tx, ty);
 }
+
+void Bezier::scale(Point origin, double ex, double ey) {
+    this->p0.scale(origin, ex, ey);
+    this->p1.scale(origin, ex, ey);
+    this->p2.scale(origin, ex, ey);
+    this->p3.scale(origin, ex, ey);
+}

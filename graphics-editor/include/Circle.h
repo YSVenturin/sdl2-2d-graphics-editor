@@ -13,6 +13,7 @@ class Circle : public Shape
         virtual ~Circle();
         void draw();
         void translate(double tx, double ty);
+        void scale(Point origin, double ex, double ey);
 
     protected:
 

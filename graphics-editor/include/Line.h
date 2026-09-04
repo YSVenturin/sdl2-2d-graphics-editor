@@ -13,6 +13,7 @@ class Line : public Shape
         void draw();
         virtual ~Line();
         void translate(double tx, double ty);
+        void scale(Point origin, double ex, double ey);
 
     protected:
 

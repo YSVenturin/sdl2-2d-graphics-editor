@@ -13,6 +13,7 @@ class Bezier : public Shape
         virtual ~Bezier();
         void draw();
         void translate(double tx, double ty);
+        void scale(Point origin, double ex, double ey);
 
     protected:
 

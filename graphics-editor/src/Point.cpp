@@ -42,3 +42,21 @@ void Point::translate(double tx, double ty) {
     this->y = this->y + ty;
 }
 
+void Point::scale(Point origin, double ex, double ey) {
+    // Ponto auxiliar para calculos
+    Point p_aux = Point(this->x, this->y);
+
+    // 1) Aplicar uma translação do ponto escolhido até a origem
+    p_aux.translate(-origin.getX(), -origin.getY());
+
+    // 2) Aplicar a escala
+    p_aux.setX(p_aux.getX() * ex);
+    p_aux.setY(p_aux.getY() * ey);
+
+    //3) Transladá-lo até sua posição inicial
+    p_aux.translate(origin.getX(), origin.getY());
+
+    this->x = p_aux.getX();
+    this->y = p_aux.getY();
+}
+

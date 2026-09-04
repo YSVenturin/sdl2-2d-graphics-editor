@@ -13,6 +13,7 @@ class Point
         void setY(double y);
         virtual ~Point();
         void translate(double tx, double ty);
+        void scale(Point origin, double ex, double ey);
 
     protected:
 

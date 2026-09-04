@@ -51,3 +51,8 @@ void Circle::displayBresenhamCircle(int xc, int yc, int x, int y) {
 void Circle::translate(double tx, double ty) {
     this->center.translate(tx, ty);
 }
+
+void Circle::scale(Point origin, double ex, double ey) {
+    this->center.scale(origin, ex, ey);
+    this->radius *= ex; // circle specific case, ex == ey
+}

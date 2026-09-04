@@ -53,6 +53,11 @@ void Line::translate(double tx, double ty) {
     this->end.translate(tx, ty);
 }
 
+void Line::scale(Point origin, double ex, double ey) {
+    this->start.scale(origin, ex, ey);
+    this->end.scale(origin, ex, ey);
+}
+
 void Line::drawWuLine(int x0, int y0, int x1, int y1, Color color )
 {
 

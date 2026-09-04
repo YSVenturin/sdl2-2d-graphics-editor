@@ -29,3 +29,10 @@ void Rectangle::translate(double tx, double ty) {
     this->bottomLeft.translate(tx, ty);
     this->bottomRight.translate(tx, ty);
 }
+
+void Rectangle::scale(Point origin, double ex, double ey) {
+    topLeft.scale(origin, ex, ey);
+    topRight.scale(origin, ex, ey);
+    bottomLeft.scale(origin, ex, ey);
+    bottomRight.scale(origin, ex, ey);
+}

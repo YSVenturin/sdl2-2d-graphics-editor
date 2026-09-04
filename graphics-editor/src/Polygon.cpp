@@ -33,3 +33,9 @@ void Polygon::translate(double tx, double ty) {
         p.translate(tx, ty);
     }
 }
+
+void Polygon::scale(Point origin, double ex, double ey) {
+    for (auto& p : this->points) {
+        p.scale(origin, ex, ey);
+    }
+}

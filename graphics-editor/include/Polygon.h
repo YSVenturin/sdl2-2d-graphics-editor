@@ -17,6 +17,7 @@ class Polygon : public Shape
         void draw();
         void addPoint(Point p);
         void translate(double tx, double ty);
+        void scale(Point origin, double ex, double ey);
 
     protected:
 
