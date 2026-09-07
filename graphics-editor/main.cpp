@@ -21,6 +21,8 @@
 #include <ShapeList.h>
 #include <FloodFill.h>
 
+#include <ToolBox.h>
+
 #include <chrono>
 #include <ctime>
 #include <iomanip>
@@ -31,9 +33,21 @@
 #else
     #include <sys/stat.h>
     #define MKDIR(path) mkdir(path, 0755)
-#endif // codigo original do exemplo era pra Linux
+#endif // codigo original do exemplo do professor era pra Linux
 
 using namespace std;
+
+// Função para criar shape temporario, na movimenta do mouse pos click!
+std::unique_ptr<Shape> createShape(Tool tool, Color color, int x1, int y1, int x2, int y2) {
+    Point p1(x1, y1);
+    Point p2(x2, y2);
+    switch(tool) {
+        case Tool::LINE: return std::make_unique<Line>(p1, p2, color);
+        case Tool::RECTANGLE: return std::make_unique<Rectangle>(p1, p2, color);
+        // Ai tem que viajar legal pra conseguir fazer os outros: CIRCLE, BEZIER, POLYGON, FLOOD_FILL (estes precisam de UMA lógica diferente...)
+        default: return nullptr;
+    }
+}
 
 long long generateSaveId() {
     auto now = std::chrono::system_clock::now();
@@ -110,12 +124,21 @@ int main() {
     Context* context = Context::getInstance();
     context->setWindowSurface(window_surface);
 
+    ToolBox toolbox(200, 768);
+
+    // Variáveis de desenho
+    bool drawing = false;
+    int startX, startY;
+    int endX, endY;
+    std::unique_ptr<Shape> tempShape = nullptr;
+
     pixels = (unsigned int *) window_surface->pixels;
     width = window_surface->w;
     height = window_surface->h;
 
     ShapeList shapeList = ShapeList();
 
+    // comentar depois...
     Color red(255, 0, 0);
     Color blue(0, 0, 255);
     Color lightBlue(56, 204, 209);
@@ -206,11 +229,78 @@ int main() {
                 if (ctrl && key == SDLK_s) {
                     saveFile(window);
                 }
+
+                // fazer do ctrl + z
+
+                // fazer do del
+
+                //acho que só, pq ja temos a toolbox
+            }
+
+            if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT) {
+                int mx = event.button.x;
+                int my = event.button.y;
+
+                // clicou na toolbox?
+                if (toolbox.contains(mx, my)) {
+                    toolbox.handleClick(mx, my);
+                } else {
+                    // Inicia desenho
+                    startX = mx;
+                    startY = my;
+                    endX = mx;
+                    endY = my;
+                    drawing = true;
+                    tempShape = nullptr; // criado durante o move
+                }
+            }
+
+            if (event.type == SDL_MOUSEMOTION) {
+                if (drawing) {
+                    endX = event.motion.x;
+                    endY = event.motion.y;
+
+                    // Atualiza shape temp
+                    Tool tool = toolbox.getTool();
+                    Color color = toolbox.getColor();
+
+                    // Cria shape temp
+                    tempShape = createShape(tool, color, startX, startY, endX, endY);
+                }
+            }
+
+            if (event.type == SDL_MOUSEBUTTONUP && event.button.button == SDL_BUTTON_LEFT) {
+                if (drawing) {
+                    endX = event.button.x;
+                    endY = event.button.y;
+
+                    // Cria a shape final e adiciona ao ShapeList
+                    Tool tool = toolbox.getTool();
+                    Color color = toolbox.getColor();
+                    auto newShape = createShape(tool, color, startX, startY, endX, endY);
+                    if (newShape) {
+                        shapeList.add(std::move(newShape));
+                    }
+                    drawing = false;
+                    tempShape = nullptr;
+                }
             }
         }
 
         SDL_FillRect(window_surface, NULL, Color::RGB(255, 255, 255));
-        display(shapeList);
+        shapeList.drawAll();
+
+        //display(); 
+        /*
+            pra mim só ficou mais dificil trabalhar com a função display pq fica precisando pssar os parametros e parece não fazer diferença
+            nenhuma para o loop, então por hora vou jogar tudo aqui no main mesmo...
+        */
+
+        if (tempShape) {
+            tempShape->draw();
+        }
+
+        toolbox.draw(window_surface);
 
         SDL_UpdateWindowSurface(window);
     }
