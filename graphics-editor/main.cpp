@@ -21,7 +21,65 @@
 #include <ShapeList.h>
 #include <FloodFill.h>
 
+#include <chrono>
+#include <ctime>
+#include <iomanip>
+
+#ifdef _WIN32
+    #include <direct.h>
+    #define MKDIR(path) _mkdir(path)
+#else
+    #include <sys/stat.h>
+    #define MKDIR(path) mkdir(path, 0755)
+#endif // codigo original do exemplo era pra Linux
+
 using namespace std;
+
+long long generateSaveId() {
+    auto now = std::chrono::system_clock::now();
+    std::time_t currentTime = std::chrono::system_clock::to_time_t(now);
+    std::tm localTime = *std::localtime(&currentTime);
+
+    std::ostringstream oss;
+    oss << std::put_time(&localTime, "%Y%m%d%H%M%S");
+
+    return std::stoll(oss.str());
+}
+
+std::string getSaveDirectory() {
+#ifdef _WIN32
+    const char* home = getenv("USERPROFILE");
+    std::string separator = "\\";
+#else
+    const char* home = getenv("HOME");
+    std::string separator = "/";
+#endif
+
+    std::string base = (home != nullptr) ? std::string(home) : std::string(".");
+    return base + separator + "Pictures";
+}
+
+void saveFile(SDL_Window* window) {
+#ifdef _WIN32
+    std::string separator = "\\";
+#else
+    std::string separator = "/";
+#endif
+
+    std::string dir = getSaveDirectory();
+    MKDIR(dir.c_str());
+
+    std::string name = dir + separator + "desenho-" + std::to_string(generateSaveId()) + ".bmp";
+
+    SDL_Surface* surface = SDL_GetWindowSurface(window);
+
+    if (SDL_SaveBMP(surface, name.c_str()) == 0) {
+        printf("Arquivo salvo com sucesso: %s\n", name.c_str());
+    }
+    else {
+        printf("Erro ao salvar: %s\n", SDL_GetError());
+    }
+}
 
 // SDL
 unsigned int * pixels;
@@ -33,7 +91,7 @@ std::string title = "Graphics Editor";
 
 void display(ShapeList &shapeList) {
     shapeList.drawAll();
-    Color green(0, 255, 0);
+    //Color green(0, 255, 0);
     //FloodFill::floodFill(width/2, height/2, green);
 }
 
@@ -135,11 +193,23 @@ int main() {
         SDL_Event event;
 
         while (SDL_PollEvent(&event)) {
+
             if (event.type == SDL_QUIT) {
                 exit(0);
             }
+
+            if (event.type == SDL_KEYDOWN) {
+
+                SDL_Keycode key = event.key.keysym.sym;
+                bool ctrl = (event.key.keysym.mod & KMOD_CTRL) != 0;
+
+                if (ctrl && key == SDLK_s) {
+                    saveFile(window);
+                }
+            }
         }
 
+        SDL_FillRect(window_surface, NULL, Color::RGB(255, 255, 255));
         display(shapeList);
 
         SDL_UpdateWindowSurface(window);
