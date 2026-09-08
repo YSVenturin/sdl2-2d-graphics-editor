@@ -19,7 +19,6 @@
 #include <Polygon.h>
 #include <Shape.h>
 #include <ShapeList.h>
-#include <FloodFill.h>
 
 #include <ToolBox.h>
 
@@ -37,16 +36,33 @@
 
 using namespace std;
 
-// Função para criar shape temporario, na movimenta do mouse pos click!
 std::unique_ptr<Shape> createShape(Tool tool, Color color, int x1, int y1, int x2, int y2) {
     Point p1(x1, y1);
     Point p2(x2, y2);
     switch(tool) {
         case Tool::LINE: return std::make_unique<Line>(p1, p2, color);
         case Tool::RECTANGLE: return std::make_unique<Rectangle>(p1, p2, color);
-        // Ai tem que viajar legal pra conseguir fazer os outros: CIRCLE, BEZIER, POLYGON, FLOOD_FILL (estes precisam de UMA lógica diferente...)
+        case Tool::CIRCLE: {
+            int radius = (int)std::sqrt((x2-x1)*(x2-x1) + (y2-y1)*(y2-y1));
+            return std::make_unique<Circle>(p1, radius, color);
+        }
         default: return nullptr;
     }
+}
+
+// criar Bezier com um ponto de controle (P1 = P2 = control, tipo o Paint)
+std::unique_ptr<Shape> createBezier(Point p0, Point p3, Point control, Color color) {
+    Point p1 = control;
+    Point p2 = control;
+    return std::make_unique<Bezier>(p0, p1, p2, p3, color);
+}
+
+void finishPolygon(ShapeList& list, std::list<Point>& points, Color color) {
+    if (points.size() < 3) {
+        printf("Poligono precisa de pelo menos 3 pontos.\n");
+        return;
+    }
+    list.add(std::make_unique<Polygon>(points, color));
 }
 
 long long generateSaveId() {
@@ -104,7 +120,7 @@ SDL_Renderer * renderer;
 std::string title = "Graphics Editor";
 
 void display(ShapeList &shapeList) {
-    shapeList.drawAll();
+    //shapeList.drawAll();
     //Color green(0, 255, 0);
     //FloodFill::floodFill(width/2, height/2, green);
 }
@@ -131,6 +147,19 @@ int main() {
     int startX, startY;
     int endX, endY;
     std::unique_ptr<Shape> tempShape = nullptr;
+
+    // Variáveis para Bezier
+    bool bezierWaitingP0 = false;
+    bool bezierWaitingP3 = false;
+    Point bezierP0;
+    Point bezierP3;
+    Point bezierControl;
+
+    // Variáveis para Poligono
+    std::list<Point> polygonPoints;
+    bool polygonDrawing = false;
+    std::unique_ptr<Line> polygonTempLine = nullptr;
+    Point polygonTempPoint; // ultimo ponto do mouse?
 
     pixels = (unsigned int *) window_surface->pixels;
     width = window_surface->w;
@@ -230,9 +259,13 @@ int main() {
                     saveFile(window);
                 }
 
-                // fazer do ctrl + z
+                // fazer do ctrl + z, pensando bem, isso aqui vai ser complicado, ele apenas vai desfazer a figura?
+                    // se incluir o esquema de desfazer transformação ai fica complexo...
 
                 // fazer do del
+
+                // Adicionar botao de acao para limpar a tela? limpar lista de Shapes?
+                    // mais um motivo para FloodFill ser um Shape?
 
                 //acho que só, pq ja temos a toolbox
             }
@@ -244,37 +277,119 @@ int main() {
                 // clicou na toolbox?
                 if (toolbox.contains(mx, my)) {
                     toolbox.handleClick(mx, my);
+
+                    if (polygonDrawing) {
+                        finishPolygon(shapeList, polygonPoints, toolbox.getColor());
+                        polygonDrawing = false;
+                        polygonPoints.clear();
+                        polygonTempLine = nullptr;
+                    }
+
+                    bezierWaitingP0 = false;
+                    bezierWaitingP3 = false;
+                    tempShape = nullptr;
                 } else {
-                    // Inicia desenho
-                    startX = mx;
-                    startY = my;
-                    endX = mx;
-                    endY = my;
-                    drawing = true;
-                    tempShape = nullptr; // criado durante o move
+
+                    Tool tool = toolbox.getTool();
+                    Color color = toolbox.getColor();
+
+                    switch (tool) {
+                        case Tool::FLOOD_FILL:
+                            //shapeList.add(std::make_unique<FloodFillShape>(Point(mx, my), color));
+                                // teria que ter algo assim? FloodFill tbm precisa herdar de shape para manter as alterações? que?
+                            //printf("Color: %d\n", color.getColor());
+                            // nao inicia desenho
+                            //SDL_UpdateWindowSurface(window); ???? testar depois...
+                            break;
+
+                        case Tool::POLYGON:
+                            if (!polygonDrawing) {
+                                polygonDrawing = true;
+                                polygonPoints.clear();
+                                polygonPoints.push_back(Point(mx, my));
+                            } else {
+                                Point first = polygonPoints.front();
+                                double dist = std::sqrt((mx - first.getX())*(mx - first.getX()) + (my - first.getY())*(my - first.getY()));
+                                if (dist <= 5.0) {
+                                    finishPolygon(shapeList, polygonPoints, color);
+                                    polygonDrawing = false;
+                                    polygonPoints.clear();
+                                    polygonTempLine = nullptr;
+                                } else {
+                                    polygonPoints.push_back(Point(mx, my));
+                                }
+                            }
+                            break;
+
+                        case Tool::BEZIER:
+                            if (!bezierWaitingP0) {
+                                // primeiro clique: define P0
+                                bezierP0 = Point(mx, my);
+                                bezierWaitingP0 = true;
+                                bezierWaitingP3 = false;
+                                //printf("P0 definido (%d, %d)\n", mx, my);
+                            } else if (!bezierWaitingP3) {
+                                // segundo clique: define P3
+                                bezierP3 = Point(mx, my);
+                                bezierWaitingP3 = true;
+
+                                bezierControl.setX((bezierP0.getX() + bezierP3.getX()) / 2);
+                                bezierControl.setY((bezierP0.getY() + bezierP3.getY()) / 2);
+                                tempShape = createBezier(bezierP0, bezierP3, bezierControl, color);
+                                //printf("arraste para controlar\n");
+                            } else {
+                                // sla?
+                            }
+                            break;
+
+                        default:
+                            // LINE, RECTANGLE, CIRCLE: iniciar arraste normal
+                            startX = mx;
+                            startY = my;
+                            endX = mx;
+                            endY = my;
+                            drawing = true;
+                            tempShape = nullptr;
+                            break;
+                    }
                 }
             }
 
             if (event.type == SDL_MOUSEMOTION) {
-                if (drawing) {
-                    endX = event.motion.x;
-                    endY = event.motion.y;
+                int mx = event.motion.x;
+                int my = event.motion.y;
 
-                    // Atualiza shape temp
+                // Se estiver desenhando com arraste (LINE, RECT, CIRCLE, BEZIER (inicio?))
+                if (drawing && !polygonDrawing && !bezierWaitingP3) {
+                    endX = mx;
+                    endY = my;
                     Tool tool = toolbox.getTool();
                     Color color = toolbox.getColor();
-
-                    // Cria shape temp
                     tempShape = createShape(tool, color, startX, startY, endX, endY);
+                }
+
+                if (polygonDrawing && !polygonPoints.empty()) {
+                    Point last = polygonPoints.back();
+                    polygonTempLine = std::make_unique<Line>(last, Point(mx, my), toolbox.getColor());
+                }
+
+                if (bezierWaitingP3) {
+                    bezierControl = Point(mx, my);
+                    Color color = toolbox.getColor();
+                    tempShape = createBezier(bezierP0, bezierP3, bezierControl, color);
+                }
+
+                // linha reta temporaria de P0 ate o mouse para a primeira parte do Bezier
+                if (bezierWaitingP0 && !bezierWaitingP3) {
+                    tempShape = std::make_unique<Line>(bezierP0, Point(mx, my), toolbox.getColor());
                 }
             }
 
             if (event.type == SDL_MOUSEBUTTONUP && event.button.button == SDL_BUTTON_LEFT) {
-                if (drawing) {
+                // Finaliza arraste para LINE, RECT, CIRCLE
+                if (drawing && !polygonDrawing && !bezierWaitingP3) {
                     endX = event.button.x;
                     endY = event.button.y;
-
-                    // Cria a shape final e adiciona ao ShapeList
                     Tool tool = toolbox.getTool();
                     Color color = toolbox.getColor();
                     auto newShape = createShape(tool, color, startX, startY, endX, endY);
@@ -283,6 +398,27 @@ int main() {
                     }
                     drawing = false;
                     tempShape = nullptr;
+                }
+
+                // Finaliza Bezier
+                if (bezierWaitingP3) {
+                    Color color = toolbox.getColor();
+                    auto newBezier = createBezier(bezierP0, bezierP3, bezierControl, color);
+                    if (newBezier) {
+                        shapeList.add(std::move(newBezier));
+                    }
+                    bezierWaitingP0 = false;
+                    bezierWaitingP3 = false;
+                    tempShape = nullptr;
+                }
+            }
+
+            if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_RIGHT) {
+                if (polygonDrawing) {
+                    finishPolygon(shapeList, polygonPoints, toolbox.getColor());
+                    polygonDrawing = false;
+                    polygonPoints.clear();
+                    polygonTempLine = nullptr;
                 }
             }
         }
@@ -298,6 +434,22 @@ int main() {
 
         if (tempShape) {
             tempShape->draw();
+        }
+
+        // Enquanto o poligono esta sendo desenhado, mantem visiveis os segmentos
+        if (polygonDrawing && polygonPoints.size() >= 2) {
+            Color color = toolbox.getColor();
+            auto it = polygonPoints.begin();
+            Point prev = *it;
+            ++it;
+            for (; it != polygonPoints.end(); ++it) {
+                Line(prev, *it, color).draw();
+                prev = *it;
+            }
+        }
+
+        if (polygonTempLine) {
+            polygonTempLine->draw();
         }
 
         toolbox.draw(window_surface);
