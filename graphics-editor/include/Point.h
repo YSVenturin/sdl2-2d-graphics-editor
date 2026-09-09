@@ -14,6 +14,8 @@ class Point
         virtual ~Point();
         void translate(double tx, double ty);
         void scale(Point origin, double ex, double ey);
+        void rotate(Point origin, double angleDegrees);
+        static double distance(Point a, Point b);
 
     protected:
 

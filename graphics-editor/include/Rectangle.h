@@ -16,6 +16,8 @@ class Rectangle : public Shape
         void draw();
         void translate(double tx, double ty);
         void scale(Point origin, double ex, double ey);
+        void rotate(Point origin, double angleDegrees);
+        double distanceTo(Point p);
 
     protected:
 

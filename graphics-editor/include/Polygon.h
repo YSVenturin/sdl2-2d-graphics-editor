@@ -18,6 +18,8 @@ class Polygon : public Shape
         void addPoint(Point p);
         void translate(double tx, double ty);
         void scale(Point origin, double ex, double ey);
+        void rotate(Point origin, double angleDegrees);
+        double distanceTo(Point p);
 
     protected:
 
