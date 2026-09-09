@@ -18,7 +18,7 @@ namespace {
     const int PALETTE_START_Y = 390;
     const int PALETTE_SIZE = 22;
     const int PALETTE_GAP = 26;
-    const int ACTION_Y_UNDO = 500;
+    const int ACTION_Y_CLEAR = 500;
     const int ACTION_Y_DELETE = 550;
     const int ACTION_Y_SAVE = 600;
     const int SEPARATOR_Y = 370;
@@ -71,8 +71,8 @@ Color ToolBox::getColor() const {
 ToolBox::Action ToolBox::getAction(int x, int y) const {
     if (x < 10 || x > width - 10)
         return Action::NONE;
-    if (y >= ACTION_Y_UNDO && y < ACTION_Y_UNDO + BUTTON_HEIGHT)
-        return Action::UNDO;
+    if (y >= ACTION_Y_CLEAR && y < ACTION_Y_CLEAR + BUTTON_HEIGHT)
+        return Action::CLEAR;
     if (y >= ACTION_Y_DELETE && y < ACTION_Y_DELETE + BUTTON_HEIGHT)
         return Action::DELETE;
     if (y >= ACTION_Y_SAVE && y < ACTION_Y_SAVE + BUTTON_HEIGHT)
@@ -219,14 +219,17 @@ void ToolBox::drawActionIcon(SDL_Surface* surface, int y, int action) {
     int cy = y + BUTTON_HEIGHT / 2;
     Color black(20, 20, 20);
 
-    if (action == 0) { // UNDO (lembrar de pegar ctrl + z no main tbm)
-        Point p1(cx + 13, cy);
-        Point p2(cx - 10, cy);
-        Point p3(cx - 2, cy - 8);
-        Point p4(cx - 2, cy + 8);
-        Line l1(p1, p2, black); l1.draw();
-        Line l2(p2, p3, black); l2.draw();
-        Line l3(p2, p4, black); l3.draw();
+    if (action == 0) { // CLEAR
+        Point p1(cx - 10, cy - 10);
+        Point p2(cx + 10, cy + 10);
+        Point p3(cx + 10, cy - 10);
+        Point p4(cx - 10, cy + 10);
+
+        Line l1(p1, p2, black);
+        Line l2(p3, p4, black);
+
+        l1.draw();
+        l2.draw();
     }
     else if (action == 1) { // DELETE (+ del no main?)
         Point p1(cx - 9, cy - 7);
@@ -329,8 +332,8 @@ void ToolBox::draw(SDL_Surface* surface) {
     Line separador(p1, p2, sep);
     separador.draw();
 
-    drawButton(surface, ACTION_Y_UNDO, false);
-    drawActionIcon(surface, ACTION_Y_UNDO, 0);
+    drawButton(surface, ACTION_Y_CLEAR, false);
+    drawActionIcon(surface, ACTION_Y_CLEAR, 0);
     drawButton(surface, ACTION_Y_DELETE, false);
     drawActionIcon(surface, ACTION_Y_DELETE, 1);
     drawButton(surface, ACTION_Y_SAVE, false);
