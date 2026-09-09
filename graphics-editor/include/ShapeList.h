@@ -13,7 +13,11 @@ class ShapeList
         virtual ~ShapeList();
         void add(std::unique_ptr<Shape> shape);
         void drawAll();
+        void remove(Shape* shape);
         void removeAll();
+
+        // procura na lista o objeto correto
+        Shape* findTop(Point p, double tolerance = 5.0);
 
     protected:
 

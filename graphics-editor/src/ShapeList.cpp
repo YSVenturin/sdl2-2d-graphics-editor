@@ -18,6 +18,21 @@ void ShapeList::drawAll() {
     }
 }
 
+void ShapeList::remove(Shape* shape) {
+    this->shapes.remove_if([shape](const std::unique_ptr<Shape>& s) {
+        return s.get() == shape;
+    });
+}
+
 void ShapeList::removeAll() {
     (this->shapes).clear();
+}
+
+Shape* ShapeList::findTop(Point p, double tolerance) {
+    for (auto it = this->shapes.rbegin(); it != this->shapes.rend(); ++it) {
+        if ((*it)->hitTest(p, tolerance)) {
+            return it->get();
+        }
+    }
+    return nullptr;
 }
