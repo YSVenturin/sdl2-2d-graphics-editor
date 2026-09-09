@@ -46,6 +46,11 @@ void Line::draw() {
             this->color.getG(),
             this->color.getB());
     }
+
+    if (this->selected) {
+        Shape::drawHandle(this->start);
+        Shape::drawHandle(this->end);
+    }
 }
 
 void Line::translate(double tx, double ty) {
@@ -56,6 +61,15 @@ void Line::translate(double tx, double ty) {
 void Line::scale(Point origin, double ex, double ey) {
     this->start.scale(origin, ex, ey);
     this->end.scale(origin, ex, ey);
+}
+
+void Line::rotate(Point origin, double angleDegrees) {
+    this->start.rotate(origin, angleDegrees);
+    this->end.rotate(origin, angleDegrees);
+}
+
+double Line::distanceTo(Point p) {
+    return Shape::distancePointToSegment(p, this->start, this->end);
 }
 
 void Line::drawWuLine(int x0, int y0, int x1, int y1, Color color )
