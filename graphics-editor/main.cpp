@@ -19,6 +19,7 @@
 #include <Polygon.h>
 #include <Shape.h>
 #include <ShapeList.h>
+#include <FloodFillShape.h>
 
 #include <ToolBox.h>
 
@@ -161,6 +162,12 @@ int main() {
     std::unique_ptr<Line> polygonTempLine = nullptr;
     Point polygonTempPoint; // ultimo ponto do mouse?
 
+    // Variaveis para SELECT
+    Shape* selectedShape = nullptr; // aponta para o objeto dentro da shapeList
+    bool draggingSelected = false;
+    int lastMouseX = 0, lastMouseY = 0;
+    bool pressed = false;
+
     pixels = (unsigned int *) window_surface->pixels;
     width = window_surface->w;
     height = window_surface->h;
@@ -259,15 +266,34 @@ int main() {
                     saveFile(window);
                 }
 
-                // fazer do ctrl + z, pensando bem, isso aqui vai ser complicado, ele apenas vai desfazer a figura?
-                    // se incluir o esquema de desfazer transformação ai fica complexo...
+                if (key == SDLK_DELETE || key == SDLK_BACKSPACE) {
+                    if (selectedShape) {
+                        shapeList.remove(selectedShape);
+                        selectedShape = nullptr;
+                    }
+                }
 
-                // fazer do del
+                // Rotacionar o objeto selecionado, teclas Q e E de apoio, o pivo é o ponto do mouse
+                // deixar o pivo como ponto inicial do objeto seria uma opção tbm
+                if (selectedShape && toolbox.getTool() == Tool::SELECT) {
+                    if (key == SDLK_q || key == SDLK_e) {
+                        int mx, my;
+                        SDL_GetMouseState(&mx, &my);
+                        Point pivot(mx, my);
+                        double angle = (key == SDLK_q) ? -5.0 : 5.0;
+                        selectedShape->rotate(pivot, angle);
+                    }
+                }
+            }
 
-                // Adicionar botao de acao para limpar a tela? limpar lista de Shapes?
-                    // mais um motivo para FloodFill ser um Shape?
-
-                //acho que só, pq ja temos a toolbox
+            if (event.type == SDL_MOUSEWHEEL) {
+                if (selectedShape && toolbox.getTool() == Tool::SELECT) {
+                    int mx, my;
+                    SDL_GetMouseState(&mx, &my);
+                    Point pivot(mx, my);
+                    double factor = (event.wheel.y > 0) ? 1.05 : (1.0 / 1.05);
+                    selectedShape->scale(pivot, factor, factor);
+                }
             }
 
             if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT) {
@@ -276,7 +302,24 @@ int main() {
 
                 // clicou na toolbox?
                 if (toolbox.contains(mx, my)) {
-                    toolbox.handleClick(mx, my);
+                    ToolBox::Action action = toolbox.getAction(mx, my);
+
+                    if (action == ToolBox::Action::CLEAR) {
+                        shapeList.removeAll();
+                        selectedShape = nullptr;
+                    }
+                    else if (action == ToolBox::Action::DELETE) {
+                        if (selectedShape) {
+                            shapeList.remove(selectedShape);
+                            selectedShape = nullptr;
+                        }
+                    }
+                    else if (action == ToolBox::Action::SAVE) {
+                        saveFile(window);
+                    }
+                    else {
+                        toolbox.handleClick(mx, my);
+                    }
 
                     if (polygonDrawing) {
                         finishPolygon(shapeList, polygonPoints, toolbox.getColor());
@@ -294,12 +337,28 @@ int main() {
                     Color color = toolbox.getColor();
 
                     switch (tool) {
+                        case Tool::SELECT: {
+                            Point click(mx, my);
+                            Shape* hit = shapeList.findTop(click, 5.0);
+
+                            if (selectedShape && selectedShape != hit) {
+                                selectedShape->setSelected(false);
+                            }
+
+                            selectedShape = hit;
+
+                            if (hit) {
+                                hit->setSelected(true);
+                                draggingSelected = true;
+                                lastMouseX = mx;
+                                lastMouseY = my;
+                            }
+                            break;
+                        }
+
                         case Tool::FLOOD_FILL:
-                            //shapeList.add(std::make_unique<FloodFillShape>(Point(mx, my), color));
-                                // teria que ter algo assim? FloodFill tbm precisa herdar de shape para manter as alterações? que?
-                            //printf("Color: %d\n", color.getColor());
-                            // nao inicia desenho
-                            //SDL_UpdateWindowSurface(window); ???? testar depois...
+                            // fazer mais testes com o FLOOD_FILL, muito travado...
+                            shapeList.add(std::make_unique<FloodFillShape>(Point(mx, my), color));
                             break;
 
                         case Tool::POLYGON:
@@ -309,7 +368,7 @@ int main() {
                                 polygonPoints.push_back(Point(mx, my));
                             } else {
                                 Point first = polygonPoints.front();
-                                double dist = std::sqrt((mx - first.getX())*(mx - first.getX()) + (my - first.getY())*(my - first.getY()));
+                                double dist = Point::distance(first, Point(mx, my));
                                 if (dist <= 5.0) {
                                     finishPolygon(shapeList, polygonPoints, color);
                                     polygonDrawing = false;
@@ -383,6 +442,14 @@ int main() {
                 if (bezierWaitingP0 && !bezierWaitingP3) {
                     tempShape = std::make_unique<Line>(bezierP0, Point(mx, my), toolbox.getColor());
                 }
+
+                if (draggingSelected && selectedShape) {
+                    int dx = mx - lastMouseX;
+                    int dy = my - lastMouseY;
+                    selectedShape->translate(dx, dy);
+                    lastMouseX = mx;
+                    lastMouseY = my;
+                }
             }
 
             if (event.type == SDL_MOUSEBUTTONUP && event.button.button == SDL_BUTTON_LEFT) {
@@ -411,6 +478,8 @@ int main() {
                     bezierWaitingP3 = false;
                     tempShape = nullptr;
                 }
+
+                draggingSelected = false;
             }
 
             if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_RIGHT) {
@@ -420,8 +489,22 @@ int main() {
                     polygonPoints.clear();
                     polygonTempLine = nullptr;
                 }
+
+                pressed = true;
+            }
+
+            if (event.type == SDL_MOUSEBUTTONUP && event.button.button == SDL_BUTTON_RIGHT) { 
+                pressed = false;
             }
         }
+
+        if (selectedShape && toolbox.getTool() == Tool::SELECT && pressed) {
+            int mx, my;
+            SDL_GetMouseState(&mx, &my);
+            Point pivot(mx, my);
+            double angle = 5.0;
+            selectedShape->rotate(pivot, angle);
+        } //ficou rapido
 
         SDL_FillRect(window_surface, NULL, Color::RGB(255, 255, 255));
         shapeList.drawAll();
