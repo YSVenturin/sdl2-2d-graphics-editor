@@ -1,4 +1,5 @@
 #include "Circle.h"
+#include <cmath>
 
 Circle::Circle() : Shape() {
 }
@@ -35,6 +36,16 @@ void Circle::draw() {
 
         displayBresenhamCircle(this->center.getX(), this->center.getY(), x, y);
     }
+
+    if (this->selected) {
+        double cx = this->center.getX();
+        double cy = this->center.getY();
+        Shape::drawHandle(Point(cx, cy));
+        Shape::drawHandle(Point(cx + this->radius, cy));
+        Shape::drawHandle(Point(cx - this->radius, cy));
+        Shape::drawHandle(Point(cx, cy + this->radius));
+        Shape::drawHandle(Point(cx, cy - this->radius));
+    }
 }
 
 void Circle::displayBresenhamCircle(int xc, int yc, int x, int y) {
@@ -55,4 +66,13 @@ void Circle::translate(double tx, double ty) {
 void Circle::scale(Point origin, double ex, double ey) {
     this->center.scale(origin, ex, ey);
     this->radius *= ex; // circle specific case, ex == ey
+}
+
+void Circle::rotate(Point origin, double angleDegrees) {
+    this->center.rotate(origin, angleDegrees);
+}
+
+double Circle::distanceTo(Point p) {
+    double d = Point::distance(this->center, p);
+    return std::fabs(d - this->radius);
 }
