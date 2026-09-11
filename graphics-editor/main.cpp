@@ -19,7 +19,7 @@
 #include <Polygon.h>
 #include <Shape.h>
 #include <ShapeList.h>
-#include <FloodFillShape.h>
+#include <FloodFill.h>
 
 #include <ToolBox.h>
 
@@ -116,6 +116,7 @@ void saveFile(SDL_Window* window) {
 unsigned int * pixels;
 int width, height;
 SDL_Surface * window_surface;
+SDL_Surface * fills_surface;
 SDL_Renderer * renderer;
 
 std::string title = "Graphics Editor";
@@ -172,6 +173,20 @@ int main() {
     width = window_surface->w;
     height = window_surface->h;
 
+    // criar uma tela auxiliar so para os flood fills, se nao trava quando o usuario utiliza muito
+    fills_surface = SDL_CreateRGBSurfaceWithFormat(0,
+        window_surface->w,
+        window_surface->h,
+        window_surface->format->BitsPerPixel,
+        window_surface->format->format);
+
+    // essa tela secundaria comeca pintada de branco, obviamente
+    Color white(255, 255, 255);
+    SDL_FillRect(fills_surface,
+        NULL,
+        white.getColor()
+    );
+
     ShapeList shapeList = ShapeList();
 
     // comentar depois...
@@ -179,7 +194,7 @@ int main() {
     Color blue(0, 0, 255);
     Color lightBlue(56, 204, 209);
     Color green(0, 255, 0);
-    Color white(255, 255, 255);
+
     Color yellow(255, 255, 0);
 
     Point p0(100, 400);
@@ -306,6 +321,10 @@ int main() {
 
                     if (action == ToolBox::Action::CLEAR) {
                         shapeList.removeAll();
+                        SDL_FillRect(fills_surface,
+                            NULL,
+                            white.getColor()
+                        );
                         selectedShape = nullptr;
                     }
                     else if (action == ToolBox::Action::DELETE) {
@@ -358,7 +377,8 @@ int main() {
 
                         case Tool::FLOOD_FILL:
                             // fazer mais testes com o FLOOD_FILL, muito travado...
-                            shapeList.add(std::make_unique<FloodFillShape>(Point(mx, my), color));
+                            //shapeList.add(std::make_unique<FloodFillShape>(Point(mx, my), color));
+                            FloodFill::floodFill(mx, my, color, fills_surface);
                             break;
 
                         case Tool::POLYGON:
@@ -493,7 +513,7 @@ int main() {
                 pressed = true;
             }
 
-            if (event.type == SDL_MOUSEBUTTONUP && event.button.button == SDL_BUTTON_RIGHT) { 
+            if (event.type == SDL_MOUSEBUTTONUP && event.button.button == SDL_BUTTON_RIGHT) {
                 pressed = false;
             }
         }
@@ -506,10 +526,17 @@ int main() {
             selectedShape->rotate(pivot, angle);
         } //ficou rapido
 
-        SDL_FillRect(window_surface, NULL, Color::RGB(255, 255, 255));
+        // aqui ele copia a superfice fills_surface para a window_surface
+        SDL_BlitSurface(
+            fills_surface,
+            NULL,
+            window_surface,
+            NULL
+        );
+
         shapeList.drawAll();
 
-        //display(); 
+        //display();
         /*
             pra mim só ficou mais dificil trabalhar com a função display pq fica precisando pssar os parametros e parece não fazer diferença
             nenhuma para o loop, então por hora vou jogar tudo aqui no main mesmo...

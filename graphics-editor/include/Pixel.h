@@ -15,6 +15,7 @@ class Pixel
         static void setPixel(int x, int y, Color color);
         static void setPixel(int x, int y, Uint32 color);
         static void setPixel(int x, int y, int r, int g, int b, int a);
+        static void setPixel(SDL_Surface* surface, int x, int y, Uint32 color); // para poder pintar na tela fills_surface
         static Uint32 getPixel(int x, int y);
 
     private:

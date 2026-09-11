@@ -5,12 +5,7 @@ Pixel::~Pixel() {}
 
 void Pixel::setPixel(int x, int y, Uint32 color) {
     SDL_Surface *window_surface = Context::getInstance()->getWindowSurface();
-    if (!window_surface) return;
-    int w = window_surface->w;
-    int h = window_surface->h;
-    if (x < 0 || x >= w || y < 0 || y >= h) return;
-    unsigned int *pixels = (unsigned int *)window_surface->pixels;
-    pixels[x + y * w] = color;
+    Pixel::setPixel(window_surface, x, y, color);
 }
 
 void Pixel::setPixel(int x, int y, Color color) {
@@ -29,6 +24,17 @@ void Pixel::setPixel(int x, int y, int r, int g, int b, int a) {
     if (x < 0 || x >= w || y < 0 || y >= h) return;
     unsigned int *pixels = (unsigned int *)window_surface->pixels;
     pixels[x + y * w] = SDL_MapRGBA(window_surface->format, r, g, b, a);
+}
+
+void Pixel::setPixel(SDL_Surface* surface, int x, int y, Uint32 color) {
+    if (!surface) return;
+    int w = surface->w;
+    int h = surface->h;
+    if (x < 0 || x >= w || y < 0 || y >= h) return;
+
+    unsigned int *pixels = (unsigned int *)surface->pixels;
+
+    pixels[x + y * w] = color;
 }
 
 Uint32 Pixel::getPixel(int x, int y) {

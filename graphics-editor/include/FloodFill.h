@@ -11,12 +11,12 @@
 class FloodFill : protected Pixel
 {
     public:
-        static void floodFill(int x,int y, Color color);
+        static void floodFill(int x,int y, Color color, SDL_Surface* fills_surface);
 
     protected:
 
     private:
-        static void floodFill(int x,int y, Uint32 newColor, Uint32 oldColor, int width, int height);
+        static void floodFill(int x,int y, Uint32 newColor, Uint32 oldColor, int width, int height, SDL_Surface* fills_surface);
 };
 
 #endif // FLOODFILL_H
