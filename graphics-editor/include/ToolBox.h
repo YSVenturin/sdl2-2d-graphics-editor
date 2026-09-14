@@ -33,7 +33,7 @@ private:
     int toolY(Tool tool) const;
 
 public:
-    enum class Action { NONE, CLEAR, DELETE, SAVE };
+    enum class Action { NONE, CLEAR, DELETE, SAVE, HELP };
 
     ToolBox(int width, int height);
 

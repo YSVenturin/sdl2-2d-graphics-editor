@@ -123,6 +123,30 @@ void saveFile(SDL_Window* window) {
     }
 }
 
+void showHelp(SDL_Window* window) {
+    const char* message =
+        "DRAWING\n"
+        "\n"
+        "Line, Rectangle and Circle: click and drag\n"
+        "Bezier: click the start point, then click and drag\n"
+        "Polygon: click to add points and right-click to finish\n"
+        "Flood Fill: click inside the area to be filled\n"
+        "\n"
+        "EDITING\n"
+        "\n"
+        "Selection tool + left click: select an object\n"
+        "Left mouse drag: move the selected object\n"
+        "Mouse wheel: increase or decrease scale\n"
+        "Q / E: rotate the selected object\n"
+        "Delete / Backspace: delete the selected object\n"
+        "\n"
+        "FILE\n"
+        "\n"
+        "Ctrl + S: save the drawing";
+
+    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "Help", message, window);
+}
+
 // SDL
 unsigned int * pixels;
 int width, height;
@@ -273,6 +297,11 @@ int main() {
                     else if (action == ToolBox::Action::SAVE) {
                         saveFile(window);
                     }
+
+                    else if (action == ToolBox::Action::HELP) {
+                        showHelp(window);
+                    }
+
                     else {
                         toolbox.handleClick(mx, my);
                     }

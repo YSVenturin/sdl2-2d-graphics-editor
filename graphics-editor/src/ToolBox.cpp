@@ -21,6 +21,7 @@ namespace {
     const int ACTION_Y_CLEAR = 500;
     const int ACTION_Y_DELETE = 550;
     const int ACTION_Y_SAVE = 600;
+    const int ACTION_Y_HELP = 650;
     const int SEPARATOR_Y = 370;
     const int CURRENT_COLOR_Y = 455;
     const int CURRENT_COLOR_HEIGHT = 30;
@@ -77,6 +78,9 @@ ToolBox::Action ToolBox::getAction(int x, int y) const {
         return Action::DELETE;
     if (y >= ACTION_Y_SAVE && y < ACTION_Y_SAVE + BUTTON_HEIGHT)
         return Action::SAVE;
+    if (y >= ACTION_Y_HELP && y < ACTION_Y_HELP + BUTTON_HEIGHT) {
+        return Action::HELP;
+    }
     return Action::NONE;
 }
 
@@ -259,6 +263,15 @@ void ToolBox::drawActionIcon(SDL_Surface* surface, int y, int action) {
         Rectangle etiq2(p5, p6, black);
         etiq2.draw();
     }
+
+    else if (action == 3) { // HELP
+        Line(Point(cx - 8, cy - 8), Point(cx, cy - 14), black).draw();
+        Line(Point(cx, cy - 14), Point(cx + 8, cy - 8), black).draw();
+        Line(Point(cx + 8, cy - 8), Point(cx + 8, cy - 2), black).draw();
+        Line(Point(cx + 8, cy - 2), Point(cx, cy + 4), black).draw();
+        Line(Point(cx, cy + 4), Point(cx, cy + 8), black).draw();
+        Circle(Point(cx, cy + 14), 2, black).draw();
+    }
 }
 
 void ToolBox::drawPalette(SDL_Surface* surface) {
@@ -283,7 +296,7 @@ void ToolBox::drawPalette(SDL_Surface* surface) {
         Color border(60, 60, 60);
         Rectangle borda(p1, p2, border);
         borda.draw();
-        
+
         // Destacar cor selecionada
         if (colors[i].getR() == currentColor.getR() &&
             colors[i].getG() == currentColor.getG() &&
@@ -338,6 +351,8 @@ void ToolBox::draw(SDL_Surface* surface) {
     drawActionIcon(surface, ACTION_Y_DELETE, 1);
     drawButton(surface, ACTION_Y_SAVE, false);
     drawActionIcon(surface, ACTION_Y_SAVE, 2);
+    drawButton(surface, ACTION_Y_HELP, false);
+    drawActionIcon(surface, ACTION_Y_HELP, 3);
 
     // Paleta
     drawPalette(surface);
