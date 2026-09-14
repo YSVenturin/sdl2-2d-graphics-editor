@@ -115,7 +115,22 @@ void saveFile(SDL_Window* window) {
 
     SDL_Surface* surface = SDL_GetWindowSurface(window);
 
-    if (SDL_SaveBMP(surface, name.c_str()) == 0) {
+    SDL_Rect sourceCrop = { 200, 0, 1024 - 200, 768 };
+
+    SDL_Surface* croppedSurface = SDL_CreateRGBSurfaceWithFormat(0,
+        surface->w - 200,
+        surface->h,
+        surface->format->BitsPerPixel,
+        surface->format->format);
+
+    SDL_BlitSurface(
+            surface,
+            &sourceCrop,
+            croppedSurface,
+            NULL
+        );
+
+    if (SDL_SaveBMP(croppedSurface, name.c_str()) == 0) {
         printf("Arquivo salvo com sucesso: %s\n", name.c_str());
     }
     else {
